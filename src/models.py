@@ -17,3 +17,10 @@ class User(db.Model):
             "email": self.email,
             # do not serialize the password, its a security breach
         }
+
+
+class Usuario(db.Model):
+    __tablename__= 'usuario'
+
+    id db.column(db.integer, primary_key=true)
+    username = db.column(db.string(80), unique=true, nullable=false)
