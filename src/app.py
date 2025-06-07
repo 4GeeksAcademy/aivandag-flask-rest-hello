@@ -8,7 +8,7 @@ from flask_swagger import swagger
 from flask_cors import CORS
 from utils import APIException, generate_sitemap
 from admin import setup_admin
-from models import db, User
+from models import db, User, Post, Comment, Like
 #from models import Person
 
 app = Flask(__name__)
@@ -44,6 +44,58 @@ def handle_hello():
     }
 
     return jsonify(response_body), 200
+
+@app.route('/users', methods=['GET'])
+def get_users():
+    all_users = User.query.all()
+    return jsonify([u.serialize() for u in all_users]), 200
+
+@app.route('/users', methods=['POST'])
+def create_user():
+    data = request.json
+    new_user = User(
+        email=data['email'],
+        password=data['password'],
+        is_active=data.get('is_active', true)
+    )
+    db.session.add(new_user)
+    db.session.commit()
+    return jsonify(new_user.serialize()), 201
+
+@app.route('/post', methods=['GEt'])
+def get_post():
+    posts = Post.query.all()
+    return jsonify([p.serialize() for p in posts]), 200
+
+@app.route('/posts', methods=['POST'])
+def crate_post():
+    data = request.json
+    p = Post(
+        user_id=data['user_id'],
+
+    )
+    db.session.add(p)
+    db.session.commit()
+    return jsonify(p.serializr()), 201
+
+@app.route('/posts/int:post_id', methods=['DELETE'])
+def delete_post(post_id):
+    post =Post.query.get_or_404(post_id)
+    db.session.delete(post)
+    db.session.commit()
+    return jsonify({"msg": "Post eliminado exitosamente"}), 200
+
+@app.route('/comments', methods=['POST'])
+def create_comment():
+    data = request.json
+    c = Comment(
+        post_id=data['post_id'],
+        user_id=data['user_id'],
+        text=data['text']
+    )
+    db.session.add(c)
+    db.session.commit()
+    return jsonify(l.serialize()), 201
 
 # this only runs if `$ python src/app.py` is executed
 if __name__ == '__main__':
